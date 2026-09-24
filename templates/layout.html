@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="theme-{{theme_name}}">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebrand">
+        <img class="logo" src="/static/tooth.svg" alt="" />
+        <div>
+          <div class="brandname">{{clinic_name}}</div>
+          <div class="brandtag">{{clinic_tagline}}</div>
+        </div>
+      </div>
+      <nav class="sidenav">
+        {{nav_items_html}}
+      </nav>
+      
+      
+    </aside>
+    <div class="content">
+      <header class="topheader">
+        <div class="pagetitle">{{title}}</div>
+        <div class="topright">
+          {{alert_bell_html}}
+          <span class="muted" style="font-weight:800">Welcome, {{welcome_name}} ({{welcome_role}})</span>
+          <a class="btn secondary btn-sm" href="/logout">Logout</a>
+        </div>
+      </header>
+      <main class="main">
+        {{flash_html}}
+        {{body_html}}
+      </main>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var path = window.location.pathname || "/";
+      var items = document.querySelectorAll(".navitem[data-path]");
+      for (var i = 0; i < items.length; i++) {
+        var p = items[i].getAttribute("data-path");
+        var isActive = p === "/" ? path === "/" : path.indexOf(p) === 0;
+        if (isActive) items[i].classList.add("active");
+      }
+    })();
+  </script>
+</body>
+</html>

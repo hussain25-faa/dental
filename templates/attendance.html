@@ -1,0 +1,36 @@
+<div class="grid two">
+  <div class="card">
+    <h1>Staff Attendance</h1>
+    <div class="muted">Date: {{day}}</div>
+  </div>
+  <div class="card">
+    <form method="get" action="/attendance">
+      <label>Change day</label>
+      <div class="row">
+        <div><input type="date" name="day" value="{{day}}" /></div>
+        <div style="flex:1 1 180px"><button class="btn secondary" type="submit">Go</button></div>
+      </div>
+    </form>
+  </div>
+</div>
+<div style="height:12px"></div>
+<div class="card">
+  <form method="post" action="/attendance?day={{day}}">
+    <table>
+      <thead>
+        <tr>
+          <th>Staff Name</th>
+          <th>Present / Absent</th>
+          <th>Check-in</th>
+          <th>Check-out</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{attendance_rows_html}}
+      </tbody>
+    </table>
+    <div style="height:12px"></div>
+    <button class="btn good" type="submit">Save Attendance</button>
+  </form>
+</div>
+

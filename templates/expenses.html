@@ -1,0 +1,104 @@
+<div class="grid two">
+  <div class="card">
+    <h1>Expenses</h1>
+    <div class="muted">Date: {{day}}</div>
+  </div>
+  <div class="card">
+    <form method="get" action="/expenses">
+      <label>Change day</label>
+      <div class="row">
+        <div><input type="date" name="day" value="{{day}}" /></div>
+        <div style="flex:1 1 180px"><button class="btn secondary" type="submit">Go</button></div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div style="height:12px"></div>
+<div class="grid two">
+  <div class="card">
+    <h1>Staff Expense</h1>
+    <form method="post" action="/staff-adjustments/new?day={{day}}&back=expenses">
+      <input type="hidden" name="kind" value="Expense" />
+      <div class="row">
+        <div>
+          <label>Staff Name</label>
+          <select name="staff_id" required>{{staff_options_html}}</select>
+        </div>
+        <div>
+          <label>Amount</label>
+          <input type="text" name="amount" placeholder="e.g. 200" required />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Note</label>
+          <input type="text" name="note" />
+        </div>
+        <div style="flex:1 1 180px">
+          <label>&nbsp;</label>
+          <button class="btn good" type="submit">Add</button>
+        </div>
+      </div>
+    </form>
+    <div style="height:12px"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>Staff</th>
+          <th class="right">Amount</th>
+          <th>Note</th>
+          <th class="right">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{staff_expense_rows_html}}
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h1>Clinic Expense</h1>
+    <form method="post" action="/clinic-expenses/new?day={{day}}">
+      <div class="row">
+        <div>
+          <label>Category</label>
+          <select name="category">
+            <option>Equipment</option>
+            <option>Medicines</option>
+            <option>Rent</option>
+            <option>Electricity</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label>Amount</label>
+          <input type="text" name="amount" placeholder="e.g. 1000" required />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Note</label>
+          <input type="text" name="note" />
+        </div>
+        <div style="flex:1 1 180px">
+          <label>&nbsp;</label>
+          <button class="btn good" type="submit">Add</button>
+        </div>
+      </div>
+    </form>
+    <div style="height:12px"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>Clinic Category</th>
+          <th class="right">Amount</th>
+          <th>Note</th>
+          <th class="right">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{clinic_expense_rows_html}}
+      </tbody>
+    </table>
+  </div>
+</div>

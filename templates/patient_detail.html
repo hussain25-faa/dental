@@ -1,0 +1,175 @@
+<div class="card">
+  <div class="headrow">
+    <div class="left">
+      <h1>Patient Overview</h1>
+      <div class="subhead">Appointments, visits, and billing in one place</div>
+    </div>
+    <div class="right">
+      {{whatsapp_button_html}}
+      <a class="btn secondary" href="/patients">Back</a>
+    </div>
+  </div>
+  <div style="height:12px"></div>
+  <div class="info-grid">
+    <div class="info-tile"><div class="muted">Patient ID</div><div class="pill">{{patient_code}}</div></div>
+    <div class="info-tile"><div class="muted">Name</div><div><b>{{patient_name}}</b></div></div>
+    <div class="info-tile"><div class="muted">Age / Gender</div><div>{{patient_age}} / {{patient_gender}}</div></div>
+    <div class="info-tile"><div class="muted">Phone</div><div>{{patient_phone}}</div></div>
+  </div>
+</div>
+<div style="height:12px"></div>
+<div class="grid two">
+  <div class="card">
+    <h1>Book Appointment</h1>
+    <form method="post" action="/appointments/new">
+      <input type="hidden" name="patient_id" value="{{patient_id}}" />
+      <input type="hidden" name="source_patient_id" value="{{patient_id}}" />
+      <div class="row">
+        <div>
+          <label>Date &amp; Time</label>
+          <input type="datetime-local" name="appointment_at" value="{{appointment_at_default}}" required />
+        </div>
+        <div>
+          <label>Doctor</label>
+          <input type="text" name="doctor_name" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Note</label>
+          <textarea name="note" placeholder="Cleaning, review, root canal, follow-up..."></textarea>
+        </div>
+        <div>
+          <label>Status</label>
+          <select name="status">
+            <option>Scheduled</option>
+            <option>Done</option>
+            <option>Cancelled</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn good" type="submit">Save Appointment</button>
+    </form>
+  </div>
+  <div class="card">
+    <h1>Add Visit</h1>
+    <form method="post" action="/patients/{{patient_id}}/visits/new">
+      <div class="row">
+        <div>
+          <label>Date &amp; Time of Visit</label>
+          <input type="datetime-local" name="visit_at" value="{{visit_at_default}}" required />
+        </div>
+        <div>
+          <label>Doctor Assigned</label>
+          <input type="text" name="doctor_assigned" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Treatment Details</label>
+          <textarea name="treatment_details"></textarea>
+        </div>
+        <div>
+          <label>Notes</label>
+          <textarea name="notes"></textarea>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Cost</label>
+          <input type="text" name="cost" placeholder="e.g. 500 or 500.00" />
+        </div>
+      </div>
+      <button class="btn good" type="submit">Save Visit</button>
+    </form>
+  </div>
+</div>
+<div style="height:12px"></div>
+<div class="card">
+  <h1>Billing &amp; Invoice</h1>
+  <form method="post" action="/patients/{{patient_id}}/billing/new">
+    <div class="row">
+      <div>
+        <label>Invoice Date</label>
+        <input type="date" name="invoice_day" value="{{invoice_day_default}}" required />
+      </div>
+      <div>
+        <label>Total Amount</label>
+        <input type="text" name="amount" placeholder="e.g. 1500" required />
+      </div>
+      <div>
+        <label>Paid Amount</label>
+        <input type="text" name="paid_amount" placeholder="e.g. 500" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Treatment Details</label>
+        <textarea name="treatment_details"></textarea>
+      </div>
+      <div>
+        <label>Note</label>
+        <textarea name="note"></textarea>
+      </div>
+    </div>
+    <button class="btn good" type="submit">Create Invoice</button>
+  </form>
+  <div style="height:12px"></div>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Invoice</th>
+          <th>Date</th>
+          <th>Treatment</th>
+          <th class="right">Amount</th>
+          <th class="right">Balance</th>
+          <th>Status</th>
+          <th class="right">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{invoice_rows_html}}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div style="height:12px"></div>
+<div class="grid two">
+  <div class="card">
+    <h1>Upcoming Appointments</h1>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date &amp; Time</th>
+            <th>Doctor</th>
+            <th>Note</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{appointments_rows_html}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <h1>Treatment History</h1>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date &amp; Time</th>
+            <th>Doctor Assigned</th>
+            <th>Treatment / Notes</th>
+            <th class="right">Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{visits_rows_html}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<div class="card">
+  <h1>Edit Staff</h1>
+  {{error_html}}
+  <form method="post" action="/staff/{{staff_id}}/edit" enctype="multipart/form-data">
+    <div class="row">
+      <div>
+        <label>Staff Name</label>
+        <input type="text" name="name" value="{{name}}" required />
+      </div>
+      <div>
+        <label>Phone number</label>
+        <input type="text" name="phone" value="{{phone}}" />
+      </div>
+      <div>
+        <label>Role</label>
+        <input type="text" name="role" value="{{role}}" required />
+      </div>
+      <div>
+        <label>Address</label>
+        <input type="text" name="address" value="{{address}}" />
+      </div>
+      <div>
+        <label>Aadhaar No</label>
+        <input type="text" name="aadhar_no" value="{{aadhar_no}}" />
+      </div>
+      <div style="flex:1 1 180px">
+        <label>Active</label>
+        <select name="active">
+          <option value="1" {{active_yes}}>Yes</option>
+          <option value="0" {{active_no}}>No</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Staff Image</label>
+        <input type="file" name="staff_image" accept="image/*" />
+        <div style="height:8px"></div>
+        {{staff_image_preview}}
+      </div>
+      <div>
+        <label>Aadhaar Image</label>
+        <input type="file" name="aadhar_image" accept="image/*" />
+        <div style="height:8px"></div>
+        {{aadhar_image_preview}}
+      </div>
+    </div>
+    <div class="muted">Role and password are managed in Settings.</div>
+    <div style="height:12px"></div>
+    <div class="row">
+      <div style="flex:1 1 180px">
+        <button class="btn good" type="submit">Save</button>
+      </div>
+      <div style="flex:1 1 180px">
+        <a class="btn secondary" href="/staff">Back</a>
+      </div>
+    </div>
+  </form>
+</div>

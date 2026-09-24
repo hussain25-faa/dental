@@ -1,0 +1,53 @@
+<div class="card">
+  <div class="headrow">
+    <div class="left">
+      <h1>Patients</h1>
+      <div class="subhead">Manage your patients</div>
+    </div>
+    <div class="right">
+      <a class="btn" href="/patients/new">+ Add New Patient</a>
+    </div>
+  </div>
+  <div style="height:12px"></div>
+  <form method="get" action="/patients" class="search searchbar" id="patient-search-form">
+    <svg class="sicon" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" stroke-width="1.8"/></svg>
+    <input type="text" name="q" value="{{search}}" placeholder="Search patients..." autocomplete="off" />
+    <button class="btn secondary searchbtn" type="submit">Search</button>
+  </form>
+</div>
+
+<div style="height:12px"></div>
+<div class="card">
+  <div class="tablewrap">
+  <table class="patients-table">
+    <thead>
+      <tr>
+        <th class="col-name">Name</th>
+        <th class="col-age">Age</th>
+        <th class="col-phone">Phone</th>
+        <th class="col-visit">Last Visit</th>
+        <th class="col-treatment">Treatment details</th>
+        <th class="right col-action">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{patients_rows_html}}
+    </tbody>
+  </table>
+  </div>
+</div>
+<script>
+  (function () {
+    var form = document.getElementById("patient-search-form");
+    if (!form) return;
+    var input = form.querySelector("input[name='q']");
+    if (!input) return;
+    var timer = null;
+    input.addEventListener("input", function () {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(function () {
+        form.submit();
+      }, 250);
+    });
+  })();
+</script>

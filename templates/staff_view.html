@@ -1,0 +1,40 @@
+<div class="card">
+  <div class="headrow">
+    <div class="left">
+      <h1>{{name}}</h1>
+      <div class="muted">{{role}} - {{status}}</div>
+    </div>
+    <div class="right">
+      <a class="btn secondary btn-sm" href="/staff/{{staff_id}}/edit">Edit</a>
+      <a class="btn secondary btn-sm" href="/staff">Back</a>
+    </div>
+  </div>
+  <div style="height:12px"></div>
+  <div class="grid two">
+    <div class="card">
+      <h1 style="font-size:18px">Details</h1>
+      <table>
+        <tbody>
+          <tr><th>Phone</th><td>{{phone}}</td></tr>
+          <tr><th>Address</th><td>{{address}}</td></tr>
+          <tr><th>Aadhaar No</th><td>{{aadhar_no}}</td></tr>
+          <tr><th>Role</th><td>{{role}}</td></tr>
+          <tr><th>Status</th><td>{{status}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h1 style="font-size:18px">Images</h1>
+      <div class="grid two">
+        <div>
+          <label>Staff Photo</label>
+          {{staff_image_preview}}
+        </div>
+        <div>
+          <label>Aadhaar Image</label>
+          {{aadhar_image_preview}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

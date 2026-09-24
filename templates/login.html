@@ -1,0 +1,53 @@
+<section class="login-shell">
+  <div class="login-copy">
+    <div class="eyebrow">Dental clinic access</div>
+    <h1>Welcome back to your clinic desk</h1>
+    <p>
+      Track patients, update treatment history, and manage staff operations from one calm workspace.
+    </p>
+    <div class="login-notes">
+      <div class="notechip">Offline ready</div>
+      <div class="notechip">Admin and staff login</div>
+      <div class="notechip">Quick patient access</div>
+    </div>
+  </div>
+
+  <div class="login-card">
+    <div class="login-brand">
+      <img class="logo" src="/static/tooth.svg" alt="" />
+      <div>
+        <div class="brandname">DENTAL CLINIC</div>
+        <div class="brandtag">SECURE SIGN IN</div>
+      </div>
+    </div>
+
+    {{error_html}}
+
+    <form method="post" action="/login" class="login-form">
+      <div>
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Staff name or admin" required />
+      </div>
+      <div>
+        <label>Password</label>
+        <input id="login-password" type="password" name="password" placeholder="Enter your password" required />
+      </div>
+      <label class="showpass">
+        <input id="show-password-toggle" type="checkbox" />
+        <span>Show password</span>
+      </label>
+      <button class="btn login-btn" type="submit">Enter Dashboard</button>
+    </form>
+    <div class="login-help">{{demo_note}}</div>
+  </div>
+</section>
+<script>
+  (function () {
+    var pass = document.getElementById("login-password");
+    var toggle = document.getElementById("show-password-toggle");
+    if (!pass || !toggle) return;
+    toggle.addEventListener("change", function () {
+      pass.type = toggle.checked ? "text" : "password";
+    });
+  })();
+</script>

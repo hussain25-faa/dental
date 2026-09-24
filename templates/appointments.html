@@ -1,0 +1,94 @@
+<div class="card {{hide_list_class}}">
+  <div class="headrow">
+    <div class="left">
+      <h1>Appointments</h1>
+      <div class="subhead">Manage bookings with the same quick flow as staff module</div>
+    </div>
+    <div class="right">
+      <a class="btn" href="/appointments?new=1">+ Add Appointment</a>
+    </div>
+  </div>
+  <div style="height:12px"></div>
+  <form method="get" action="/appointments" class="search searchbar">
+    <svg class="sicon" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" stroke-width="1.8"/></svg>
+    <input type="text" name="q" value="{{search}}" placeholder="Search patient, doctor, phone..." />
+    <div class="compact-filter">
+      <label>Status</label>
+      <select name="status">
+        <option value="All" {{status_all}}>All</option>
+        <option value="Scheduled" {{status_scheduled}}>Scheduled</option>
+        <option value="Done" {{status_done}}>Done</option>
+        <option value="Cancelled" {{status_cancelled}}>Cancelled</option>
+      </select>
+    </div>
+    <button class="btn secondary searchbtn" type="submit">Search</button>
+  </form>
+</div>
+<div class="card {{show_new_class}}">
+  <div class="headrow">
+    <div class="left">
+      <h1>New Appointment</h1>
+      <div class="subhead">Create a clean booking with patient, doctor, timing, and note</div>
+    </div>
+    <div class="right">
+      <a class="btn secondary" href="/appointments">Back To List</a>
+    </div>
+  </div>
+  <div style="height:12px"></div>
+  
+  <div style="height:12px"></div>
+  <form method="post" action="/appointments/new">
+    <div class="row">
+      <div>
+        <label>Patient</label>
+        <select name="patient_id" required>{{patient_options_html}}</select>
+      </div>
+      <div>
+        <label>Date &amp; Time</label>
+        <input type="datetime-local" name="appointment_at" value="{{appointment_at_default}}" required />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Doctor</label>
+        <input type="text" name="doctor_name" placeholder="Doctor or consultant name" />
+      </div>
+      <div>
+        <label>Status</label>
+        <select name="status">
+          <option>Scheduled</option>
+          <option>Done</option>
+          <option>Cancelled</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <label>Note</label>
+      <textarea name="note" placeholder="Procedure, review, consultation, follow-up..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn good" type="submit">Save Appointment</button>
+      <a class="btn secondary" href="/appointments">Cancel</a>
+    </div>
+  </form>
+</div>
+<div style="height:12px"></div>
+<div class="card {{hide_list_class}}">
+  <div class="tablewrap">
+    <table class="appointments-table">
+      <thead>
+        <tr>
+          <th>Date &amp; Time</th>
+          <th>Patient</th>
+          <th>Doctor</th>
+          <th>Note</th>
+          <th>Status</th>
+          <th class="right">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{appointments_rows_html}}
+      </tbody>
+    </table>
+  </div>
+</div>

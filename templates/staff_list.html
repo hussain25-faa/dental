@@ -1,0 +1,52 @@
+<div class="card">
+  <div class="headrow">
+    <div class="left">
+      <h1>Staff</h1>
+      <div class="subhead">Manage your staff team</div>
+    </div>
+    <div class="right">
+      <a class="btn" href="/staff/new">+ Add New Staff</a>
+    </div>
+  </div>
+  <div style="height:12px"></div>
+  <form method="get" action="/staff" class="search searchbar" id="staff-search-form">
+    <svg class="sicon" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" stroke-width="1.8"/></svg>
+    <input type="text" name="q" value="{{search}}" placeholder="Search staff by name, number, or role..." autocomplete="off" />
+    <button class="btn secondary searchbtn" type="submit">Search</button>
+  </form>
+</div>
+
+<div style="height:12px"></div>
+<div class="card">
+  <div class="tablewrap">
+  <table class="staff-table">
+    <thead>
+      <tr>
+        <th class="col-staff">Name</th>
+        <th class="col-phone">Number</th>
+        <th class="col-role">Role</th>
+        <th class="col-active">Status</th>
+        <th class="right col-action">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{staff_rows_html}}
+    </tbody>
+  </table>
+  </div>
+</div>
+<script>
+  (function () {
+    var form = document.getElementById("staff-search-form");
+    if (!form) return;
+    var input = form.querySelector("input[name='q']");
+    if (!input) return;
+    var timer = null;
+    input.addEventListener("input", function () {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(function () {
+        form.submit();
+      }, 250);
+    });
+  })();
+</script>

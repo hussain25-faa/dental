@@ -1,0 +1,90 @@
+<form method="post" action="/settings">
+  <div class="settings-grid">
+    <div class="card">
+      <h1>General</h1>
+      <div class="row">
+        <div>
+          <label>Clinic name</label>
+          <input type="text" name="clinic_name" value="{{clinic_name}}" required />
+        </div>
+        <div>
+          <label>Clinic tagline</label>
+          <input type="text" name="clinic_tagline" value="{{clinic_tagline}}" required />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Theme</label>
+          <select name="theme">
+            <option value="ocean" {{theme_ocean}}>Ocean</option>
+            <option value="sunrise" {{theme_sunrise}}>Sunrise</option>
+            <option value="forest" {{theme_forest}}>Forest</option>
+            <option value="dark" {{theme_dark}}>Dark</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Admin password</label>
+          <input type="password" name="admin_password" value="{{admin_password}}" required />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Clinic number</label>
+          <input type="text" name="clinic_phone" value="{{clinic_phone}}" />
+        </div>
+        <div>
+          <label>Clinic email</label>
+          <input type="text" name="clinic_email" value="{{clinic_email}}" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Clinic address</label>
+          <input type="text" name="clinic_address" value="{{clinic_address}}" />
+        </div>
+        <div>
+          <label>Appointment slot minutes</label>
+          <input type="text" name="appointment_minutes" value="{{appointment_minutes}}" />
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h1 style="font-size:20px">Staff Users</h1>
+      <div class="muted">Staff roles added on the Staff page appear here as a dropdown. Set login passwords here.</div>
+      <div style="height:12px"></div>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Staff</th>
+              <th>Role</th>
+              <th>Password</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{staff_access_rows_html}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div style="height:12px"></div>
+  <div class="settings-note">
+    <b>Recommended clinic setup:</b> keep clinic phone and email updated so invoice printouts and staff can use the correct contact details every day.
+  </div>
+  <div style="height:12px"></div>
+  <div class="card">
+    <h1 style="font-size:20px">Role Access Matrix</h1>
+    <div class="muted">Set access separately for each role. Example: Staff only Attendance, Receptionist Patients plus Attendance.</div>
+    <div style="height:12px"></div>
+    {{role_permissions_table}}
+    <div class="row">
+      <div style="flex:1 1 180px">
+        <label>&nbsp;</label>
+        <button class="btn good" type="submit">Save Settings</button>
+      </div>
+    </div>
+  </div>
+</form>

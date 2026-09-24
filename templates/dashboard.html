@@ -1,0 +1,75 @@
+<div class="card">
+  <div class="headrow">
+    <div class="left">
+      <h1>Welcome Back!</h1>
+      <div class="subhead">Here's what's happening today.</div>
+    </div>
+    <div class="right">
+      <a class="btn" href="/patients/new">+ Add New Patient</a>
+    </div>
+  </div>
+  <div style="height:14px"></div>
+  <div class="statgrid">
+    <div class="stat stat-a">
+      <div>
+        <div class="stnum">{{patients_count}}</div>
+        <div class="stlab">Total Patients</div>
+      </div>
+      <div class="sticon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="1.8"/></svg>
+      </div>
+    </div>
+    <div class="stat stat-b">
+      <div>
+        <div class="stnum">{{today_visits}}</div>
+        <div class="stlab">Today's Visits</div>
+      </div>
+      <div class="sticon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M8 7V3M16 7V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 9h16" stroke="currentColor" stroke-width="1.8"/><path d="M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8"/></svg>
+      </div>
+    </div>
+    <div class="stat stat-c">
+      <div>
+        <div class="stnum">{{visits_month}}</div>
+        <div class="stlab">Visits This Month</div>
+      </div>
+      <div class="sticon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 20V4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 12h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+    <div class="stat stat-d">
+      <div>
+        <div class="stnum">{{expenses_month}}</div>
+        <div class="stlab">Total Expenses This Month</div>
+      </div>
+      <div class="sticon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 7H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M21 10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10" stroke="currentColor" stroke-width="1.8"/><path d="M3 7l1-3h16l1 3" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="headrow">
+    <div class="left">
+      <h1>Today's Visits</h1>
+    </div>
+    <div class="right">
+      <a class="btn secondary" href="/patients">View All</a>
+    </div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Patient</th>
+        <th>Treatment</th>
+        <th>Doctor</th>
+        <th class="right">Cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{today_visits_rows_html}}
+    </tbody>
+  </table>
+</div>
