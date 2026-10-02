@@ -7,22 +7,32 @@ import os
 import secrets
 import sqlite3
 import threading
+import io
 from email.parser import BytesParser
 from http import HTTPStatus
 from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, Response
 from urllib.parse import parse_qs, quote, urlparse
-
-
+app = Flask(__name__)
 APP_DIR = Path(__file__).resolve().parent
 app = Flask(__name__)
 app.secret_key = os.environ.get("DENTAL_SECRET_KEY", secrets.token_hex(32))
-DB_PATH = Path(os.environ.get("DENTAL_DB", str(APP_DIR / "demo.sqlite3")))
+
+# Vercel's deployed filesystem is not persistent.  Keep the demo database
+# and uploaded files in /tmp when running on Vercel.  Local development
+# continues to use the normal project folder.
+IS_VERCEL = bool(os.environ.get("VERCEL"))
+if IS_VERCEL:
+    DATA_DIR = Path("/tmp/dental_data")
+else:
+    DATA_DIR = APP_DIR
+
+DB_PATH = Path(os.environ.get("DENTAL_DB", str(DATA_DIR / "demo.sqlite3")))
 TEMPLATES_DIR = APP_DIR / "templates"
 STATIC_DIR = APP_DIR / "static"
-UPLOADS_DIR = APP_DIR / "uploads"
+UPLOADS_DIR = Path(os.environ.get("DENTAL_UPLOADS", str(DATA_DIR / "uploads")))
 
 
 class DentalHTTPServer(ThreadingHTTPServer):
@@ -81,6 +91,8 @@ def _paise_to_money(paise: int) -> str:
 
 _db_lock = threading.Lock()
 _sessions_lock = threading.Lock()
+_vercel_init_lock = threading.Lock()
+_vercel_initialized = False
 _sessions: dict[str, dict[str, str]] = {}
 _request_ctx = threading.local()
 MODULES = ["dashboard", "patients", "appointments", "attendance", "staff", "expenses", "reports", "settings"]
@@ -2876,6 +2888,82 @@ def seed_demo_data() -> None:
             conn.commit()
         finally:
             conn.close()
+
+def _ensure_vercel_ready() -> None:
+    """Initialize the demo database once for a Vercel function instance."""
+    global _vercel_initialized
+
+    if not IS_VERCEL or _vercel_initialized:
+        return
+
+    with _vercel_init_lock:
+        if _vercel_initialized:
+            return
+
+        TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
+        STATIC_DIR.mkdir(parents=True, exist_ok=True)
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
+        db_init()
+        seed_demo_data()
+
+        _vercel_initialized = True
+
+
+def _run_dental_handler(method: str):
+    """Run the existing BaseHTTPRequestHandler inside Flask/Vercel."""
+    _ensure_vercel_ready()
+
+    handler = Handler.__new__(Handler)
+
+    handler.command = method
+    handler.path = request.full_path.rstrip("?")
+    handler.headers = request.headers
+    handler.rfile = io.BytesIO(request.get_data())
+    handler.wfile = io.BytesIO()
+
+    response_status = {"code": 200}
+    response_headers: list[tuple[str, str]] = []
+
+    def send_response(code, message=None):
+        response_status["code"] = int(code)
+
+    def send_header(key, value):
+        response_headers.append((str(key), str(value)))
+
+    def end_headers():
+        pass
+
+    handler.send_response = send_response
+    handler.send_header = send_header
+    handler.end_headers = end_headers
+
+    if method == "GET":
+        Handler.do_GET(handler)
+    elif method == "POST":
+        Handler.do_POST(handler)
+    else:
+        return Response("Method Not Allowed", status=405)
+
+    body = handler.wfile.getvalue()
+
+    response = Response(
+        body,
+        status=response_status["code"],
+    )
+
+    for key, value in response_headers:
+        response.headers.add(key, value)
+
+    return response
+
+
+@app.route("/", defaults={"path": ""}, methods=["GET", "POST"])
+@app.route("/<path:path>", methods=["GET", "POST"])
+def vercel_handler(path):
+    return _run_dental_handler(request.method)
+
 
 def main() -> None:
     db_init()
