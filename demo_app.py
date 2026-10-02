@@ -19,7 +19,7 @@ from urllib.parse import parse_qs, quote, urlparse
 APP_DIR = Path(__file__).resolve().parent
 app = Flask(__name__)
 app.secret_key = os.environ.get("DENTAL_SECRET_KEY", secrets.token_hex(32))
-DB_PATH = Path(os.environ.get("DENTAL_DB", str(APP_DIR / "clinic.sqlite3")))
+DB_PATH = Path(os.environ.get("DENTAL_DB", str(APP_DIR / "demo.sqlite3")))
 TEMPLATES_DIR = APP_DIR / "templates"
 STATIC_DIR = APP_DIR / "static"
 UPLOADS_DIR = APP_DIR / "uploads"
@@ -476,6 +476,8 @@ def _allowed_modules(session: dict[str, str] | None, settings: dict[str, str]) -
     if session and session.get("is_admin") == "1":
         return set(MODULES)
     role = (session or {}).get("user_role", "Staff")
+    if role == "Demo":
+        return {"dashboard", "patients", "appointments", "attendance", "staff", "expenses", "reports"}
     return set(_get_role_permissions(settings).get(role, ["dashboard"]))
 
 
@@ -2108,6 +2110,22 @@ class Handler(BaseHTTPRequestHandler):
         p = _path(self)
         q = _query_params(self)
         try:
+            if p == "/demo":
+                session_id = _create_session({
+                    "user_name": "Demo Visitor",
+                    "user_role": "Demo",
+                    "is_admin": "0",
+                    "demo_mode": "1",
+                })
+                self._redirect_with_cookie("/", f"session_id={session_id}; Path=/; HttpOnly; SameSite=Lax")
+                return
+            if p == "/login":
+                self._redirect_with_cookie("/demo")
+                return
+            if p == "/logout":
+                _destroy_session(self)
+                self._redirect_with_cookie("/demo")
+                return
             if p.startswith("/static/"):
                 rel = p.removeprefix("/static/").lstrip("/").replace("\\", "/")
                 target = (STATIC_DIR / rel).resolve()
@@ -2309,6 +2327,18 @@ class Handler(BaseHTTPRequestHandler):
         q = _query_params(self)
         form = _read_form(self)
         try:
+            session = self._require_login()
+            if p == "/login":
+                self._redirect_with_cookie("/demo")
+                return
+            if session and session.get("demo_mode") == "1":
+                self._send_html(_layout(
+                    "Demo Mode",
+                    "<div class='card'><h1>Demo mode is read-only</h1>"
+                    "<div class='muted'>This live demo is for exploring the interface. "
+                    "Changes are disabled and no real clinic data is used.</div></div>"
+                ), status=403)
+                return
             if p == "/login":
                 username = (form.get("username") or "").strip()
                 password = (form.get("password") or "").strip()
@@ -2743,8 +2773,113 @@ class Handler(BaseHTTPRequestHandler):
         self._send_html(_layout("Not Found", "<div class='card'><h1>404 Not Found</h1></div>"), status=404)
 
 
+
+def seed_demo_data() -> None:
+    """Create fictional demo content in demo.sqlite3 only."""
+    with _db_lock:
+        conn = db_connect()
+        try:
+            settings = {
+                "clinic_name": "ABS Dental Demo Clinic",
+                "clinic_tagline": "Live product demonstration",
+                "clinic_phone": "+91 90000 00000",
+                "clinic_email": "demo@example.com",
+                "clinic_address": "Demo Address, Tamil Nadu",
+                "currency_symbol": "₹",
+                "appointment_minutes": "30",
+                "admin_password": "DISABLED",
+                "role_options": "Demo",
+                "role_permissions": json.dumps({
+                    "Demo": ["dashboard", "patients", "appointments", "attendance", "staff", "expenses", "reports"]
+                }),
+            }
+            for key, value in settings.items():
+                conn.execute(
+                    "INSERT INTO app_settings(key,value) VALUES (?,?) "
+                    "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                    (key, value),
+                )
+
+            if conn.execute("SELECT COUNT(*) AS n FROM patients").fetchone()["n"]:
+                conn.commit()
+                return
+
+            now = _iso_now_minutes()
+            today = _now_local().date().isoformat()
+            patients = [
+                ("D-1001", "Arun Kumar", 32, "Male", "9000000001"),
+                ("D-1002", "Priya S", 27, "Female", "9000000002"),
+                ("D-1003", "Mohammed Ali", 41, "Male", "9000000003"),
+                ("D-1004", "Kavya R", 35, "Female", "9000000004"),
+            ]
+            ids = {}
+            for code, name, age, gender, phone in patients:
+                cur = conn.execute(
+                    "INSERT INTO patients(patient_code,name,age,gender,phone,created_at) VALUES (?,?,?,?,?,?)",
+                    (code,name,age,gender,phone,now))
+                ids[code] = cur.lastrowid
+
+            staff = [
+                ("Dr. Demo Kumar","9000000010","Demo Clinic","Doctor","demo"),
+                ("Anita Reception","9000000011","Demo Clinic","Receptionist","demo"),
+                ("Ravi Assistant","9000000012","Demo Clinic","Assistant","demo"),
+            ]
+            staff_ids = []
+            for name, phone, address, role, password in staff:
+                cur = conn.execute(
+                    """INSERT INTO staff(name,phone,address,aadhar_no,staff_image_path,
+                       aadhar_image_path,role,password,monthly_salary_paise,active,created_at)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+                    (name,phone,address,"","","",role,password,2500000,1,now))
+                staff_ids.append(cur.lastrowid)
+
+            for pid, at, doctor, note, status in [
+                (ids["D-1001"], f"{today} 10:00","Dr. Demo Kumar","Routine check-up","Scheduled"),
+                (ids["D-1002"], f"{today} 11:30","Dr. Demo Kumar","Cleaning","Confirmed"),
+                (ids["D-1003"], f"{today} 14:00","Dr. Demo Kumar","Root canal consultation","Scheduled"),
+            ]:
+                conn.execute(
+                    """INSERT INTO appointments(patient_id,appointment_at,doctor_name,note,status,created_at)
+                       VALUES (?,?,?,?,?,?)""",(pid,at,doctor,note,status,now))
+
+            for pid, at, doctor, treatment, notes, cost in [
+                (ids["D-1001"], f"{today} 09:30","Dr. Demo Kumar","Dental examination","No issues",50000),
+                (ids["D-1002"], f"{today} 11:00","Dr. Demo Kumar","Teeth cleaning","Follow-up in 6 months",120000),
+            ]:
+                conn.execute(
+                    """INSERT INTO visits(patient_id,visit_at,doctor_assigned,treatment_details,notes,cost_paise,created_at)
+                       VALUES (?,?,?,?,?,?,?)""",(pid,at,doctor,treatment,notes,cost,now))
+
+            for sid in staff_ids:
+                conn.execute(
+                    """INSERT INTO attendance(staff_id,day,status,check_in,check_out,created_at)
+                       VALUES (?,?,?,?,?,?)""",(sid,today,"Present","09:00","17:30",now))
+
+            for category, amount, note in [
+                ("Equipment",150000,"Demo dental chair maintenance"),
+                ("Medicines",75000,"Demo supplies"),
+                ("Electricity",42000,"Monthly demo utility"),
+            ]:
+                conn.execute(
+                    "INSERT INTO clinic_expenses(day,category,amount_paise,note,created_at) VALUES (?,?,?,?,?)",
+                    (today,category,amount,note,now))
+
+            for pid, inv, treatment, amount, paid, status in [
+                (ids["D-1001"],"DEMO-INV-001","Dental examination",50000,50000,"Paid"),
+                (ids["D-1002"],"DEMO-INV-002","Teeth cleaning",120000,60000,"Partial"),
+            ]:
+                conn.execute(
+                    """INSERT INTO billing_invoices(patient_id,invoice_no,invoice_day,treatment_details,
+                       amount_paise,paid_amount_paise,status,note,created_at)
+                       VALUES (?,?,?,?,?,?,?,?,?)""",
+                    (pid,inv,today,treatment,amount,paid,status,"Fictional demo invoice",now))
+            conn.commit()
+        finally:
+            conn.close()
+
 def main() -> None:
     db_init()
+    seed_demo_data()
     TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
     STATIC_DIR.mkdir(parents=True, exist_ok=True)
     host = os.environ.get("DENTAL_HOST", "127.0.0.1")
